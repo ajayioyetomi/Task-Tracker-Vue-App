@@ -21,7 +21,7 @@ export default {
 }
 </script>
 
-<style scope>
+<style scoped>
 .task {
     background: #f4f4f4;
     margin: 5px;
