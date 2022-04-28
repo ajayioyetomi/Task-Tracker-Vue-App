@@ -15,6 +15,7 @@
 import Header from './components/Header';
 import Tasks from './components/Tasks';
 import AddTask from './components/AddTask';
+
 export default {
   name: 'App',
   components: {
@@ -32,16 +33,39 @@ export default {
     toggleAddTask(){
        this.showAddTask = !this.showAddTask;
     },
-    addTask(task){
-        this.tasks = [...this.tasks,task];
+    async addTask(task){
+        const addNewTask = await fetch(`http://localhost:5000/tasks`,{
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+          },
+          body:JSON.stringify(task)
+        })
+        const newTask = await addNewTask.json();
+        console.log(newTask,task)
+        this.tasks = [...this.tasks,{...newTask,...task}];
     },
-    deleteTask(id){
-        if(comfirm('Are you sure?')){
-           this.tasks = this.tasks.filter(task => task.id !== id)
-        } 
+    async deleteTask(id){
+        const deleteTask = await fetch(`http://localhost:5000/tasks/${id}`,{
+          method:"delete",             
+        });
+      await deleteTask.json();
+      this.tasks = this.tasks.filter(task => task.id !== id)
+        
     },
-    toggleReminder(id){
-      this.tasks = this.tasks.map(task => (task.id === id? {...task,reminder:!task.reminder}:task))
+    async toggleReminder(id){
+      let eTask = this.tasks.filter(task => task.id === id);
+      eTask = eTask[0];
+      eTask.reminder= !eTask.reminder;
+      const updateTask = await fetch(`http://localhost:5000/tasks/${id}`,{
+        method:"PUT",
+        headers:{
+          "Content-Type":"application/json",
+        },
+        body:JSON.stringify(eTask)
+      })
+      const updatedTask = await updateTask.json();
+      this.tasks = this.tasks.map(task => (task.id === id? {...updatedTask}:task))
     },
 
     async fetchTask(){
@@ -60,7 +84,7 @@ export default {
 <style>
 /* You can add global styles to this file, and also import other style files */
 
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap");
+@import url("https://fonts.googlehttp://localhost:5000s.com/css2?family=Poppins:wght@300;400&display=swap");
 
 * {
   box-sizing: border-box;
